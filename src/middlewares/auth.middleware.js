@@ -9,7 +9,7 @@ export const verifyAccessToken = function (req, res, next) {
 	// save in req.user
 	// next()
 
-	const authHeader = req.header("Authorization")?.split(" ")[1];
+	const authHeader = req.headers["authorization"]?.split(" ")[1];
 	const accessToken = req.cookies?.accessToken || authHeader;
 
 	if (!accessToken) {
@@ -97,3 +97,25 @@ export const verifyRefreshToken = function (req, res, next) {
 // 		return new ApiError(401, "Error", error).JSONError(res);
 // 	}
 // });
+
+export const preventRepeatedLogin = function (req, res, next) {
+	const authHeader = req.headers["authorization"]?.split(" ")[1];
+	const accessToken = req.cookies?.accessToken || authHeader;
+
+	if (accessToken) {
+		try {
+			jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
+			return new ApiError(400, "You are already logged in.").JSONError(res);
+		} catch (error) {
+			if (error.name === "TokenExpiredError") {
+				// Token is expired, allow user to log in again
+				return next();
+			}
+			// For other errors, treat it as invalid token and allow login
+			return next();
+		}
+	}
+
+	// No token present, allow login
+	next();
+};
