@@ -14,4 +14,8 @@ app.use(
 );
 app.use(cookieParser());
 
+import userRouter from "./src/routes/user.route.js";
+
+app.use("/user", userRouter);
+
 export default app;
