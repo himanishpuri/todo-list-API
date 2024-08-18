@@ -1,6 +1,7 @@
 import ApiError from "../utils/ApiError.js";
 import jwt from "jsonwebtoken";
 import asyncHandler from "../utils/asyncHandler.js";
+import User from "../models/user.model.js";
 
 export const verifyAccessToken = function (req, res, next) {
 	// get access token
@@ -13,9 +14,7 @@ export const verifyAccessToken = function (req, res, next) {
 	const accessToken = req.cookies?.accessToken || authHeader;
 
 	if (!accessToken) {
-		return new ApiError(401, "Invalid or Absent Access Token.").JSONError(
-			res,
-		);
+		return next(); // goes to verify refresh token
 	}
 
 	try {
@@ -28,9 +27,7 @@ export const verifyAccessToken = function (req, res, next) {
 		next();
 	} catch (error) {
 		if (error.name === "TokenExpiredError") {
-			return new ApiError(401, "Expired Access Token.", error).JSONError(
-				res,
-			);
+			return next(); // goes to verify refresh token
 		}
 		return new ApiError(401, "Invalid Token.", error).JSONError(res);
 	}
@@ -98,24 +95,26 @@ export const verifyRefreshToken = function (req, res, next) {
 // 	}
 // });
 
-export const preventRepeatedLogin = function (req, res, next) {
-	const authHeader = req.headers["authorization"]?.split(" ")[1];
-	const accessToken = req.cookies?.accessToken || authHeader;
+export const authenticateRegistrationDetails = async function (req, res, next) {
+	const { email, name, password } = req.body;
 
-	if (accessToken) {
-		try {
-			jwt.verify(accessToken, process.env.ACCESS_TOKEN_SECRET);
-			return new ApiError(400, "You are already logged in.").JSONError(res);
-		} catch (error) {
-			if (error.name === "TokenExpiredError") {
-				// Token is expired, allow user to log in again
-				return next();
-			}
-			// For other errors, treat it as invalid token and allow login
-			return next();
-		}
+	if ([name, email, password].some((value) => value.trim().length === 0)) {
+		return new ApiError(
+			400,
+			"Name, Email and Password are Required",
+		).JSONError(res);
 	}
 
-	// No token present, allow login
+	try {
+		const user = await User.findOne({ email });
+		if (user) {
+			return new ApiError(409, "User Already Exists.").JSONError(res);
+		}
+	} catch (error) {
+		return new ApiError(500, "Error trying to find User", error).JSONError(
+			res,
+		);
+	}
+
 	next();
 };

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import Todo from "./todo.model.js";
 
 const userSchema = new mongoose.Schema(
 	{
@@ -25,6 +26,12 @@ const userSchema = new mongoose.Schema(
 		refreshToken: {
 			type: String,
 		},
+		todos: [
+			{
+				type: mongoose.Schema.Types.ObjectId,
+				ref: "Todo",
+			},
+		],
 	},
 	{ timestamps: true },
 );

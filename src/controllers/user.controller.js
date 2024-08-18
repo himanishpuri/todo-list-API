@@ -4,23 +4,6 @@ import asyncHandler from "../utils/asyncHandler.js";
 
 export const registerUser = asyncHandler(async function (req, res, next) {
 	const { name, email, password } = req.body;
-	if ([name, email, password].some((value) => value.trim().length === 0)) {
-		return new ApiError(
-			400,
-			"Name, Email and Password are Required",
-		).JSONError(res);
-	}
-
-	try {
-		const user = await User.findOne({ email });
-		if (user) {
-			return new ApiError(409, "User Already Exists.").JSONError(res);
-		}
-	} catch (error) {
-		return new ApiError(500, "Error trying to find User", error).JSONError(
-			res,
-		);
-	}
 
 	try {
 		const user = await User.create({
@@ -61,11 +44,12 @@ export const registerUser = asyncHandler(async function (req, res, next) {
 	}
 });
 
-export const loginUser = asyncHandler(async function (req, res, next) {
+export const loginUser = asyncHandler(async function (req, res) {
 	// verify email and password
 	// then we will send back new refresh and access token to the front
 
 	const { email, password } = req.body;
+
 	try {
 		const user = await User.findOne({ email }); // check if user exist.
 		if (!user) {
@@ -113,10 +97,15 @@ export const logoutUser = asyncHandler(async function (req, res, next) {
 			return new ApiError(404, "User not found").JSONError(res);
 		}
 
+		const options = {
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24,
+		};
+
 		return res
 			.status(200)
-			.clearCookie("accessToken")
-			.clearCookie("refreshToken")
+			.clearCookie("accessToken", options)
+			.clearCookie("refreshToken", options)
 			.json({
 				success: true,
 				message: "User Logged Out Successfully!",
@@ -125,3 +114,31 @@ export const logoutUser = asyncHandler(async function (req, res, next) {
 		return new ApiError(500, "Server Issue", error).JSONError(res);
 	}
 });
+
+export const generateAccessAndRefreshTokens = async function (id, res) {
+	try {
+		const user = await User.findById(id);
+		if (!user) {
+			return new ApiError(404, "User Not Found.").JSONError(res);
+		}
+
+		const accessToken = user.generateAccessToken();
+		const refreshToken = user.generateRefreshToken();
+		user.refreshToken = refreshToken;
+		user.save({ validateBeforeSave: false });
+
+		const options = {
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24,
+		};
+
+		res.cookie("accessToken", accessToken, options);
+		res.cookie("refreshToken", refreshToken, options);
+		res.setHeader("Authorization", `Bearer ${accessToken}`);
+
+		req.user = { id: user._id };
+		next();
+	} catch (error) {
+		return new ApiError(500, "Server Issue", err).JSONError(res);
+	}
+};
