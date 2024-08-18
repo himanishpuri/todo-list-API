@@ -82,9 +82,7 @@ export const loginUser = asyncHandler(async function (req, res, next) {
 		user.refreshToken = newRefreshToken;
 		user.save({ validateBeforeSave: false });
 
-		const loggedUser = await User.findById(user._id).select(
-			"-_id -__v -password -createdAt -updatedAt -refreshToken",
-		);
+		const loggedUser = await User.findById(user._id).select("email name");
 
 		const options = {
 			httpOnly: true,

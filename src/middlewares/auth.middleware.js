@@ -58,7 +58,7 @@ export const verifyRefreshToken = function (req, res, next) {
 		);
 
 		req.user = {
-			id: decodedToken?._id,
+			id: decodedToken?.id,
 		};
 		next();
 	} catch (error) {
@@ -71,28 +71,29 @@ export const verifyRefreshToken = function (req, res, next) {
 	}
 };
 
-export const verifyLogoutToken = asyncHandler(async function (req, res, next) {
-	const authHeader = req.headers?.authorization?.split(" ")[1];
-	const accessToken = req.cookies?.accessToken || authHeader;
-	const refreshToken = req.cookies?.refreshToken;
-	if (!accessToken && !refreshToken) {
-		return new ApiError(401, "Unauthorized Logout.").JSONError(res);
-	}
-	const token = accessToken || refreshToken;
-	const SECRET =
-		token === accessToken
-			? process.env.ACCESS_TOKEN_SECRET
-			: process.env.REFRESH_TOKEN_SECRET;
+// export const verifyLogoutToken = asyncHandler(async function (req, res, next) {
+// 	const refreshToken = req.cookies?.refreshToken;
+// 	if (!refreshToken) {
+// 		return new ApiError(
+// 			401,
+// 			"User already logged out OR Unauthorized Logout.",
+// 		).JSONError(res);
+// 	}
+// 	const token = accessToken || refreshToken;
+// 	const SECRET =
+// 		token === accessToken
+// 			? process.env.ACCESS_TOKEN_SECRET
+// 			: process.env.REFRESH_TOKEN_SECRET;
 
-	try {
-		const decodedToken = jwt.verify(token, SECRET);
+// 	try {
+// 		const decodedToken = jwt.verify(token, SECRET);
 
-		req.user = {
-			id: decodedToken.id,
-		};
+// 		req.user = {
+// 			id: decodedToken.id,
+// 		};
 
-		next();
-	} catch (error) {
-		return new ApiError(401, "Error", error).JSONError(res);
-	}
-});
+// 		next();
+// 	} catch (error) {
+// 		return new ApiError(401, "Error", error).JSONError(res);
+// 	}
+// });
