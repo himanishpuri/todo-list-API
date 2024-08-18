@@ -42,13 +42,20 @@ export const registerUser = asyncHandler(async function (req, res, next) {
 		delete registeredUser.updatedAt;
 		delete registeredUser.refreshToken;
 
-		return res.status(201).json({
-			success: true,
-			message: "User Created Successfully.",
-			registeredUser,
-			AccessToken,
-			RefreshToken,
-		});
+		const options = {
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24,
+		};
+
+		return res
+			.status(201)
+			.cookie("accessToken", AccessToken, options)
+			.cookie("refreshToken", RefreshToken, options)
+			.json({
+				success: true,
+				message: "User Created Successfully.",
+				user: registeredUser,
+			});
 	} catch (error) {
 		return new ApiError(500, "Server Issue", error).JSONError(res);
 	}
