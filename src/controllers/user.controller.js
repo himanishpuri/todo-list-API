@@ -82,6 +82,10 @@ export const loginUser = asyncHandler(async function (req, res, next) {
 		user.refreshToken = newRefreshToken;
 		user.save({ validateBeforeSave: false });
 
+		const loggedUser = await User.findById(user._id).select(
+			"-_id -__v -password -createdAt -updatedAt -refreshToken",
+		);
+
 		const options = {
 			httpOnly: true,
 			maxAge: 1000 * 60 * 60 * 24,
@@ -94,7 +98,7 @@ export const loginUser = asyncHandler(async function (req, res, next) {
 			.json({
 				success: true,
 				message: "User Logged In Successfully.",
-				user,
+				user: loggedUser,
 			});
 	} catch (error) {
 		return new ApiError(500, "Server Issue", error).JSONError(res);
@@ -106,6 +110,7 @@ export const logoutUser = asyncHandler(async function (req, res, next) {
 		const user = await User.findByIdAndUpdate(req?.user?.id, {
 			$set: { refreshToken: null },
 		});
+
 		if (!user) {
 			return new ApiError(404, "User not found").JSONError(res);
 		}
@@ -113,7 +118,11 @@ export const logoutUser = asyncHandler(async function (req, res, next) {
 		return res
 			.status(200)
 			.clearCookie("accessToken")
-			.clearCookie("refreshToken");
+			.clearCookie("refreshToken")
+			.json({
+				success: true,
+				message: "User Logged Out Successfully!",
+			});
 	} catch (error) {
 		return new ApiError(500, "Server Issue", error).JSONError(res);
 	}

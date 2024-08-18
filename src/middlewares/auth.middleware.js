@@ -86,9 +86,11 @@ export const verifyLogoutToken = asyncHandler(async function (req, res, next) {
 
 	try {
 		const decodedToken = jwt.verify(token, SECRET);
+
 		req.user = {
-			id: decodedToken._id,
+			id: decodedToken.id,
 		};
+
 		next();
 	} catch (error) {
 		return new ApiError(401, "Error", error).JSONError(res);
