@@ -66,4 +66,37 @@ export const loginUser = asyncHandler(async function (req, res, next) {
 	// then we will send back new refresh and access token to the front
 
 	const { email, password } = req.body;
+	try {
+		const user = await User.findOne({ email }); // check if user exist.
+		if (!user) {
+			return new ApiError(401, "User Not Found.").JSONError(res);
+		}
+
+		const isRightPassword = await user.isPasswordCorrect(password); // check password
+		if (!isRightPassword) {
+			return new ApiError(401, "Wrong Password.").JSONError(res);
+		}
+
+		const newAccessToken = user.generateAccessToken();
+		const newRefreshToken = user.generateRefreshToken();
+		user.refreshToken = newRefreshToken;
+		user.save({ validateBeforeSave: false });
+
+		const options = {
+			httpOnly: true,
+			maxAge: 1000 * 60 * 60 * 24,
+		};
+
+		return res
+			.status(200)
+			.cookie("accessToken", newAccessToken, options)
+			.cookie("refreshToken", newRefreshToken, options)
+			.json({
+				success: true,
+				message: "User Logged In Successfully.",
+				user,
+			});
+	} catch (error) {
+		return new ApiError(500, "Server Issue", error).JSONError(res);
+	}
 });
