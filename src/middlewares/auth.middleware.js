@@ -26,6 +26,11 @@ export const verifyAccessToken = function (req, res, next) {
 		req.user = decodedToken;
 		next();
 	} catch (error) {
+		if (error.name === "TokenExpiredError") {
+			return new ApiError(401, "Expired Access Token.", error).JSONError(
+				res,
+			);
+		}
 		return new ApiError(401, "Invalid Token.", error).JSONError(res);
 	}
 };
@@ -33,8 +38,10 @@ export const verifyAccessToken = function (req, res, next) {
 export const verifyRefreshToken = function (req, res, next) {
 	// get access token
 	// verify it and decode it
+	// check if it hasn't expired.
 	// save in req.user
 	// next()
+
 	const refreshToken = req.cookies?.refreshToken;
 
 	if (!refreshToken) {
@@ -54,6 +61,11 @@ export const verifyRefreshToken = function (req, res, next) {
 		};
 		next();
 	} catch (error) {
+		if (error.name === "TokenExpiredError") {
+			return new ApiError(401, "Expired Refresh Token.", error).JSONError(
+				res,
+			);
+		}
 		return new ApiError(401, "Invalid Token.", error).JSONError(res);
 	}
 };
