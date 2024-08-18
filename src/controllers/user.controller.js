@@ -100,3 +100,21 @@ export const loginUser = asyncHandler(async function (req, res, next) {
 		return new ApiError(500, "Server Issue", error).JSONError(res);
 	}
 });
+
+export const logoutUser = asyncHandler(async function (req, res, next) {
+	try {
+		const user = await User.findByIdAndUpdate(req?.user?.id, {
+			$set: { refreshToken: null },
+		});
+		if (!user) {
+			return new ApiError(404, "User not found").JSONError(res);
+		}
+
+		return res
+			.status(200)
+			.clearCookie("accessToken")
+			.clearCookie("refreshToken");
+	} catch (error) {
+		return new ApiError(500, "Server Issue", error).JSONError(res);
+	}
+});
