@@ -98,9 +98,13 @@ export const verifyRefreshToken = function (req, res, next) {
 export const authenticateRegistrationDetails = async function (req, res, next) {
 	const { email, name, password } = req.body;
 
-	if ([name, email, password].some((value) => value.trim().length === 0)) {
+	if (
+		[name, email, password].some(
+			(value) => !value || value.trim().length === 0,
+		)
+	) {
 		return new ApiError(
-			400,
+			409,
 			"Name, Email and Password are Required",
 		).JSONError(res);
 	}

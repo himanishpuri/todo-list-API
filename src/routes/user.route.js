@@ -10,8 +10,8 @@ import {
 } from "../middlewares/auth.middleware.js";
 const router = express.Router();
 
-router.route("/register").post(authenticateRegistrationDetails, registerUser);
-router.route("/login").post(loginUser);
+router.route("/register").post(authenticateRegistrationDetails, registerUser); // done
+router.route("/login").post(loginUser); // done
 router.route("/logout").post(verifyRefreshToken, logoutUser);
 
 export default router;

@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
-import Todo from "./todo.model.js";
 
 const userSchema = new mongoose.Schema(
 	{
@@ -56,7 +55,7 @@ userSchema.methods.generateAccessToken = function () {
 		},
 		process.env.ACCESS_TOKEN_SECRET,
 		{
-			expiresIn: "15m",
+			expiresIn: process.env.ACCESS_TOKEN_EXPIRY,
 		},
 	);
 };
@@ -68,7 +67,7 @@ userSchema.methods.generateRefreshToken = function () {
 		},
 		process.env.REFRESH_TOKEN_SECRET,
 		{
-			expiresIn: "1h",
+			expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
 		},
 	);
 };
