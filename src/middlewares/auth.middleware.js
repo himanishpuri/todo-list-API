@@ -29,7 +29,7 @@ export const verifyAccessToken = function (req, res, next) {
 		if (error.name === "TokenExpiredError") {
 			return next(); // goes to verify refresh token
 		}
-		return new ApiError(401, "Invalid Token.", error).JSONError(res);
+		return new ApiError(401, "Already Logged Out.", error).JSONError(res);
 	}
 };
 
@@ -43,9 +43,11 @@ export const verifyRefreshToken = function (req, res, next) {
 	const refreshToken = req.cookies?.refreshToken;
 
 	if (!refreshToken) {
-		return new ApiError(401, "Invalid or Absent Refresh Token.").JSONError(
-			res,
-		);
+		res.clearCookie("accessToken").clearCookie("refreshToken");
+		return new ApiError(
+			401,
+			"Invalid or Absent Refresh Token or Already Logged Out.",
+		).JSONError(res);
 	}
 
 	try {
@@ -59,12 +61,20 @@ export const verifyRefreshToken = function (req, res, next) {
 		};
 		next();
 	} catch (error) {
+		res.clearCookie("accessToken").clearCookie("refreshToken");
 		if (error.name === "TokenExpiredError") {
-			return new ApiError(401, "Expired Refresh Token.", error).JSONError(
-				res,
-			);
+			new ApiError(
+				401,
+				"Expired Refresh Token.Logged out.",
+				error,
+			).JSONError(res);
+		} else {
+			new ApiError(
+				401,
+				"Invalid Token or Already Logged Out.",
+				error,
+			).JSONError(res);
 		}
-		return new ApiError(401, "Invalid Token.", error).JSONError(res);
 	}
 };
 

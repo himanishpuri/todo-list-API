@@ -64,6 +64,9 @@ export const loginUser = asyncHandler(async function (req, res, next) {
 	// then we will send back new refresh and access token to the front
 
 	const { email, password } = req.body;
+	if ([email, password].some((value) => !value || value.trim().length === 0)) {
+		return new ApiError(404, "Email or Password not Entered.").JSONError(res);
+	}
 
 	try {
 		const user = await User.findOne({ email }); // check if user exist.
