@@ -38,8 +38,6 @@ export const verifyRefreshToken = function (req, res, next) {
 	// next()
 
 	if (req?.user) {
-		console.log("helo");
-
 		return next(); // this means access token was valid
 	}
 
