@@ -23,7 +23,9 @@ export const verifyAccessToken = function (req, res, next) {
 			process.env.ACCESS_TOKEN_SECRET,
 		);
 
-		req.user = decodedToken;
+		req.user = {
+			id: decodedToken?.id,
+		};
 		next();
 	} catch (error) {
 		return next();

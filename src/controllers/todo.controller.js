@@ -44,7 +44,32 @@ export const createTodo = asyncHandler(async function (req, res, next) {
 });
 
 export const updateTodo = asyncHandler(async function (req, res, next) {
-	return res.status(200).end();
+	const { title, completed } = req.body;
+	const { id } = req.param;
+	if (!title || title.trim().length === 0 || !id) {
+		return new ApiError(
+			404,
+			"Updated Todo Must Have a Title and an ID",
+		).JSONError(res);
+	}
+
+	try {
+		const todo = await User.findByIdAndUpdate(
+			id,
+			{
+				$set: { title, completed },
+			},
+			{ new: true },
+		);
+
+		return res.status(200).json({
+			id,
+			title: todo.title,
+			completed: todo.completed,
+		});
+	} catch (error) {
+		return new ApiError(400, "Could Not Update.").JSONError(res);
+	}
 });
 
 // const generateNewAccessToken = async function (req, res, next) {
