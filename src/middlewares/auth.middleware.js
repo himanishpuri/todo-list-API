@@ -9,12 +9,12 @@ export const verifyAccessToken = function (req, res, next) {
 	// check if it hasn't expired yet.
 	// save in req.user
 	// next()
-
+	req.user = null;
 	const authHeader = req.headers["authorization"]?.split(" ")[1];
 	const accessToken = req.cookies?.accessToken || authHeader;
 
 	if (!accessToken) {
-		return next(); // goes to verify refresh token
+		return next();
 	}
 
 	try {
@@ -26,10 +26,7 @@ export const verifyAccessToken = function (req, res, next) {
 		req.user = decodedToken;
 		next();
 	} catch (error) {
-		if (error.name === "TokenExpiredError") {
-			return next(); // goes to verify refresh token
-		}
-		return new ApiError(401, "Already Logged Out.", error).JSONError(res);
+		return next();
 	}
 };
 
@@ -39,6 +36,12 @@ export const verifyRefreshToken = function (req, res, next) {
 	// check if it hasn't expired.
 	// save in req.user
 	// next()
+
+	if (req?.user) {
+		console.log("helo");
+
+		return next(); // this means access token was valid
+	}
 
 	const refreshToken = req.cookies?.refreshToken;
 
