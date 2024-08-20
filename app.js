@@ -6,7 +6,7 @@ import multer from "multer";
 const app = express();
 const upload = multer();
 
-app.use(express.json());
+app.use(express.json()); // to handle application/json
 app.use(express.urlencoded({ extended: true }));
 app.use(
 	cors({
@@ -15,10 +15,12 @@ app.use(
 	}),
 );
 app.use(cookieParser());
-app.use(upload.none());
+app.use(upload.none()); // to handle multipart/formData
 
 import userRouter from "./src/routes/user.route.js";
+import todoRouter from "./src/routes/todo.route.js";
 
 app.use("/api/user", userRouter);
+app.use("/api/todos", todoRouter);
 
 export default app;

@@ -1,5 +1,47 @@
+import Todo from "../models/todo.model.js";
 import User from "../models/user.model.js";
 import ApiError from "../utils/ApiError.js";
+import asyncHandler from "../utils/asyncHandler.js";
+
+export const createTodo = asyncHandler(async function (req, res, next) {
+	const { title, completed } = req.body;
+	if (!title || title.trim().length === 0) {
+		return new ApiError(404, "Todo Must Have a Title.").JSONError(res);
+	}
+
+	try {
+		const userID = req?.user?.id;
+		if (!userID) {
+			return new ApiError(401, "Not Allowed. or Unauthorized.").JSONError(
+				res,
+			);
+		}
+		const todo = await Todo.create({
+			title,
+			completed,
+			user: userID,
+		});
+
+		const user = await User.findByIdAndUpdate(
+			userID,
+			{ $push: { todos: todo._id } },
+			{ new: true },
+		);
+		if (!user) {
+			return new ApiError(
+				401,
+				"Not Allowed. or Unauthorized or User Not Found",
+			).JSONError(res);
+		}
+
+		return res.status(201).json({
+			id: todo._id,
+			title,
+		});
+	} catch (error) {
+		return new ApiError(401, "Unauthorized.").JSONError(res);
+	}
+});
 
 // const generateNewAccessToken = async function (req, res, next) {
 // 	try {
