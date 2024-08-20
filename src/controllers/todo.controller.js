@@ -43,6 +43,10 @@ export const createTodo = asyncHandler(async function (req, res, next) {
 	}
 });
 
+export const updateTodo = asyncHandler(async function (req, res, next) {
+	return res.status(200).end();
+});
+
 // const generateNewAccessToken = async function (req, res, next) {
 // 	try {
 // 		if (!req?.user?.id) {
