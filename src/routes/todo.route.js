@@ -7,10 +7,14 @@ import {
 	createTodo,
 	updateTodo,
 	deleteTodo,
+	getTodos,
 } from "../controllers/todo.controller.js";
 const router = express.Router();
 
-router.route("/").post(verifyAccessToken, verifyRefreshToken, createTodo);
+router
+	.route("/")
+	.post(verifyAccessToken, verifyRefreshToken, createTodo)
+	.get(verifyAccessToken, verifyRefreshToken, getTodos);
 router
 	.route("/:id")
 	.put(verifyAccessToken, verifyRefreshToken, updateTodo)
