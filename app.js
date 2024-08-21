@@ -24,6 +24,6 @@ import { generateToken } from "./src/utils/token.util.js";
 
 app.use("/api/user", userRouter);
 app.use("/api/todos", todoRouter);
-app.use("/api/newtoken", verifyRefreshToken, generateToken);
+app.get("/api/newToken", verifyRefreshToken, generateToken);
 
 export default app;
