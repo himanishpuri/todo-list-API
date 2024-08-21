@@ -37,4 +37,4 @@ Contributions are welcome! If you find any issues or have suggestions for improv
 
 ## Project URL
 
-[https://roadmap.sh/projects/todo-list-api](https://roadmap.sh/projects/todo-list-api)
+[Project URL](https://roadmap.sh/projects/todo-list-api)
