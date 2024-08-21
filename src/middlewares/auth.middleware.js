@@ -39,9 +39,9 @@ export const verifyRefreshToken = function (req, res, next) {
 	// save in req.user
 	// next()
 
-	if (req?.user) {
-		return next(); // this means access token was valid
-	}
+	// if (req?.user) {
+	// 	return next(); // this means access token was valid
+	// }
 
 	const refreshToken = req.cookies?.refreshToken;
 

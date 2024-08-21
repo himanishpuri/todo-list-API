@@ -19,8 +19,11 @@ app.use(upload.none()); // to handle multipart/formData
 
 import userRouter from "./src/routes/user.route.js";
 import todoRouter from "./src/routes/todo.route.js";
+import { verifyRefreshToken } from "./src/middlewares/auth.middleware.js";
+import { generateToken } from "./src/utils/token.util.js";
 
 app.use("/api/user", userRouter);
 app.use("/api/todos", todoRouter);
+app.use("/api/newtoken", verifyRefreshToken, generateToken);
 
 export default app;

@@ -11,13 +11,9 @@ import {
 } from "../controllers/todo.controller.js";
 const router = express.Router();
 
-router
-	.route("/")
-	.post(verifyAccessToken, verifyRefreshToken, createTodo)
-	.get(verifyAccessToken, verifyRefreshToken, getTodos);
-router
-	.route("/:id")
-	.put(verifyAccessToken, verifyRefreshToken, updateTodo)
-	.delete(verifyAccessToken, verifyRefreshToken, deleteTodo);
+router.use(verifyAccessToken);
+
+router.route("/").post(createTodo).get(getTodos);
+router.route("/:id").put(updateTodo).delete(deleteTodo);
 
 export default router;
