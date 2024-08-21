@@ -77,6 +77,30 @@ export const updateTodo = asyncHandler(async function (req, res, next) {
 	}
 });
 
+export const deleteTodo = asyncHandler(async function (req, res, next) {
+	if (!req?.user) {
+		return new ApiError(401, "User Not Valid").JSONError(res);
+	}
+	const { id } = req.params;
+	if (!id) {
+		return new ApiError(404, "No Todo ID detected To Delete.").JSONError(res);
+	}
+
+	try {
+		const todo = await Todo.findByIdAndDelete(id);
+		if (!todo) {
+			return new ApiError(404, "Todo Not Found to Delete.").JSONError(res);
+		}
+
+		return res.status(204).json({
+			message: "Todo Deleted Successfully.",
+			success: true,
+		});
+	} catch (error) {
+		return new ApiError(400, "Could Not Delete!", error).JSONError(res);
+	}
+});
+
 // const generateNewAccessToken = async function (req, res, next) {
 // 	try {
 // 		if (!req?.user?.id) {
