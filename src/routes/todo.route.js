@@ -7,6 +7,6 @@ import { createTodo, updateTodo } from "../controllers/todo.controller.js";
 const router = express.Router();
 
 router.route("/").post(verifyAccessToken, verifyRefreshToken, createTodo);
-router.route("/:id").put(updateTodo);
+router.route("/:id").put(verifyAccessToken, verifyRefreshToken, updateTodo);
 
 export default router;

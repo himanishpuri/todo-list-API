@@ -44,8 +44,13 @@ export const createTodo = asyncHandler(async function (req, res, next) {
 });
 
 export const updateTodo = asyncHandler(async function (req, res, next) {
+	if (!req?.user) {
+		return new ApiError(401, "User Not Valid").JSONError(res);
+	}
+
 	const { title, completed } = req.body;
-	const { id } = req.param;
+	const { id } = req.params;
+
 	if (!title || title.trim().length === 0 || !id) {
 		return new ApiError(
 			404,
@@ -54,7 +59,7 @@ export const updateTodo = asyncHandler(async function (req, res, next) {
 	}
 
 	try {
-		const todo = await User.findByIdAndUpdate(
+		const todo = await Todo.findByIdAndUpdate(
 			id,
 			{
 				$set: { title, completed },
@@ -68,7 +73,7 @@ export const updateTodo = asyncHandler(async function (req, res, next) {
 			completed: todo.completed,
 		});
 	} catch (error) {
-		return new ApiError(400, "Could Not Update.").JSONError(res);
+		return new ApiError(400, "Could Not Update.", error).JSONError(res);
 	}
 });
 
