@@ -34,3 +34,7 @@ This project is a backend JavaScript API for a todo list application. It provide
 ## Contributing
 
 Contributions are welcome! If you find any issues or have suggestions for improvements, please open an issue or submit a pull request.
+
+## Project URL
+
+[https://roadmap.sh/projects/todo-list-api](https://roadmap.sh/projects/todo-list-api)
